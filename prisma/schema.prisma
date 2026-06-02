@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+}
+
+model User {
+  id            String       @id @default(cuid())
+  username      String       @unique
+  passwordHash  String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  predictions   Prediction[]
+}
+
+model Tournament {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  year        Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  teams       Team[]
+  matches     Match[]
+}
+
+model Team {
+  id            String       @id @default(cuid())
+  name          String
+  code          String       @unique
+  tournamentId  String
+  tournament    Tournament   @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  homeMatches   Match[]      @relation("HomeTeam")
+  awayMatches   Match[]      @relation("AwayTeam")
+}
+
+model Match {
+  id              String        @id @default(cuid())
+  tournamentId    String
+  tournament      Tournament    @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  homeTeamId      String
+  awayTeamId      String
+  homeTeam        Team          @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam        Team          @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  kickoffAt       DateTime
+  status          MatchStatus   @default(SCHEDULED)
+  homeScore       Int?
+  awayScore       Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  predictions     Prediction[]
+}
+
+model Prediction {
+  id              String    @id @default(cuid())
+  userId          String
+  matchId         String
+  predictedHome   Int
+  predictedAway   Int
+  pointsAwarded   Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match           Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, matchId])
+}
