@@ -10,7 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:seed": "prisma db seed"
   },
   "repository": {
     "type": "git",
@@ -24,8 +25,10 @@
   },
   "homepage": "https://github.com/fairtom/400bets#readme",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "next": "^16.2.7",
+    "pg": "^8.21.0",
     "prisma": "^7.8.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
